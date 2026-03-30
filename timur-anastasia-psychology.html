@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Психологический анализ отношений — Тимур & Анастасия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ─── THEME ─────────────────────────────────────────────── */
+  :root {
+    --bg:        #080814;
+    --bg2:       #0e0e22;
+    --surface:   rgba(255,255,255,0.04);
+    --border:    rgba(255,255,255,0.08);
+    --text:      #e8e4f0;
+    --muted:     rgba(232,228,240,0.5);
+    --ana:       #c47fa0;   /* Анастасия — пыльная роза */
+    --ana-dim:   rgba(196,127,160,0.15);
+    --tim:       #7aa8d4;   /* Тимур — стальной синий */
+    --tim-dim:   rgba(122,168,212,0.15);
+    --gold:      #d4a257;
+    --gold-dim:  rgba(212,162,87,0.15);
+    --danger:    #e07070;
+    --good:      #7ac4a0;
+    --serif:     'Cormorant Garamond', Georgia, serif;
+    --sans:      'Inter', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+  }
+
+  /* ─── SLIDES CONTAINER ──────────────────────────────────── */
+  /* Deck is a vertical column; we slide it with translateY    */
+  .deck {
+    width: 100vw;
+    /* height = TOTAL slides × 100vh, set by JS */
+    will-change: transform;
+    transition: transform 0.75s cubic-bezier(.77,0,.175,1);
+  }
+
+  .slide {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(2rem, 5vw, 5rem) clamp(1.5rem, 6vw, 8rem);
+  }
+
+  /* ─── NOISE TEXTURE OVERLAY ─────────────────────────────── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  /* ─── AMBIENT GLOW BACKGROUNDS ──────────────────────────── */
+  .glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── PROGRESS BAR ──────────────────────────────────────── */
+  .progress-bar {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--ana), var(--tim));
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    z-index: 100;
+  }
+
+  /* ─── SLIDE COUNTER ─────────────────────────────────────── */
+  .counter {
+    position: fixed;
+    bottom: 1.5rem; right: 2rem;
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    z-index: 100;
+  }
+
+  /* ─── NAV DOTS ──────────────────────────────────────────── */
+  .nav-dots {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 100;
+  }
+  .nav-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .nav-dot.active {
+    background: var(--gold);
+    transform: scale(1.6);
+  }
+
+  /* ─── TYPOGRAPHY ────────────────────────────────────────── */
+  .label {
+    font-family: var(--sans);
+    font-size: clamp(0.6rem, 1vw, 0.72rem);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  h1.display {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 5.5vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  h2.section-title {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.5vw, 3rem);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
+
+  p.lead {
+    font-family: var(--serif);
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(232,228,240,0.8);
+    max-width: 68ch;
+  }
+
+  .body-text {
+    font-family: var(--sans);
+    font-size: clamp(0.78rem, 1.3vw, 0.95rem);
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(232,228,240,0.75);
+  }
+
+  /* ─── DIVIDER ───────────────────────────────────────────── */
+  .divider {
+    width: 3rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin: 1.2rem 0;
+  }
+
+  /* ─── TYPE BADGE ────────────────────────────────────────── */
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 1rem;
+    border-radius: 2rem;
+    font-size: clamp(0.62rem, 1vw, 0.72rem);
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .type-badge.anxious  { background: var(--ana-dim); color: var(--ana); border: 1px solid rgba(196,127,160,0.3); }
+  .type-badge.avoidant { background: var(--tim-dim); color: var(--tim); border: 1px solid rgba(122,168,212,0.3); }
+
+  /* ─── BULLET LIST ───────────────────────────────────────── */
+  .bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 64ch;
+  }
+  .bullets li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-family: var(--sans);
+    font-size: clamp(0.78rem, 1.3vw, 0.93rem);
+    font-weight: 300;
+    line-height: 1.5;
+    color: rgba(232,228,240,0.8);
+  }
+  .bullets li .bullet-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    margin-top: 0.5em;
+    flex-shrink: 0;
+  }
+  .bullet-dot.ana { background: var(--ana); }
+  .bullet-dot.tim { background: var(--tim); }
+  .bullet-dot.gold { background: var(--gold); }
+
+  /* ─── CARDS ──────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    backdrop-filter: blur(4px);
+  }
+  .card-title {
+    font-family: var(--sans);
+    font-size: clamp(0.7rem, 1.1vw, 0.82rem);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .card-body {
+    font-family: var(--sans);
+    font-size: clamp(0.73rem, 1.2vw, 0.87rem);
+    font-weight: 300;
+    line-height: 1.55;
+    color: rgba(232,228,240,0.72);
+  }
+
+  /* ─── TWO-COL GRID ──────────────────────────────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    width: 100%;
+    max-width: 900px;
+  }
+
+  /* ─── THREE-COL GRID ────────────────────────────────────── */
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.8rem, 2vw, 1.5rem);
+    width: 100%;
+    max-width: 960px;
+  }
+
+  /* ─── PERSON CARD ───────────────────────────────────────── */
+  .person-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: clamp(1rem, 2.5vw, 1.8rem);
+  }
+  .person-col.ana-col { border-top: 2px solid var(--ana); }
+  .person-col.tim-col { border-top: 2px solid var(--tim); }
+  .person-name {
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 400;
+    margin-bottom: 0.3rem;
+  }
+  .person-col.ana-col .person-name { color: var(--ana); }
+  .person-col.tim-col .person-name { color: var(--tim); }
+  .need-fear-item {
+    margin-top: 0.8rem;
+  }
+  .need-fear-label {
+    font-size: clamp(0.6rem, 0.9vw, 0.68rem);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    opacity: 0.6;
+  }
+  .need-fear-text {
+    font-size: clamp(0.75rem, 1.2vw, 0.88rem);
+    font-weight: 300;
+    line-height: 1.5;
+    color: rgba(232,228,240,0.82);
+  }
+
+  /* ─── QUOTE ─────────────────────────────────────────────── */
+  .big-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 3vw, 2.4rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.45;
+    text-align: center;
+    max-width: 820px;
+    color: var(--text);
+  }
+  .big-quote em {
+    font-style: normal;
+    color: var(--gold);
+  }
+
+  /* ─── CHECK/CROSS ROWS ──────────────────────────────────── */
+  .check-row {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    font-size: clamp(0.75rem, 1.25vw, 0.9rem);
+    font-weight: 300;
+    line-height: 1.5;
+    color: rgba(232,228,240,0.8);
+  }
+  .check-row .icon { flex-shrink: 0; font-size: 1em; margin-top: 0.05em; }
+  .check-row.yes .icon { color: var(--good); }
+  .check-row.no  .icon { color: var(--danger); }
+
+  /* ─── RISK HIGHLIGHT ────────────────────────────────────── */
+  .risk-box {
+    border: 1px solid rgba(224,112,112,0.35);
+    background: rgba(224,112,112,0.06);
+    border-radius: 12px;
+    padding: clamp(1rem, 2vw, 1.5rem) clamp(1.2rem, 2.5vw, 2rem);
+    max-width: 680px;
+    text-align: center;
+  }
+
+  /* ─── VERDICT ───────────────────────────────────────────── */
+  .verdict-row {
+    display: flex;
+    gap: clamp(0.8rem, 2vw, 1.5rem);
+    align-items: flex-start;
+  }
+  .verdict-icon {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    color: var(--gold);
+  }
+  .verdict-text {
+    font-family: var(--sans);
+    font-size: clamp(0.78rem, 1.3vw, 0.93rem);
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(232,228,240,0.82);
+  }
+  .verdict-text strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ─── STAGGER ANIMATIONS ────────────────────────────────── */
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .reveal.shown { opacity: 1; transform: translateY(0); }
+
+  /* ─── REDUCED MOTION ─────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .reveal { transition: none !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 1 — TITLE                                       -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide active" data-slide="0">
+    <!-- ambient glows -->
+    <div class="glow" style="width:500px;height:500px;background:radial-gradient(circle,rgba(196,127,160,0.12),transparent 70%);top:-100px;left:-100px;"></div>
+    <div class="glow" style="width:500px;height:500px;background:radial-gradient(circle,rgba(122,168,212,0.1),transparent 70%);bottom:-100px;right:-100px;"></div>
+
+    <div style="position:relative;z-index:1;text-align:center;max-width:900px;">
+      <div class="label reveal" style="margin-bottom:1.5rem;">Психологический разбор переписки</div>
+
+      <h1 class="display reveal" style="transition-delay:0.1s;">
+        Анализ<br>
+        <span style="color:var(--ana);">Тимур</span>
+        <span style="color:var(--muted);font-size:0.6em;"> &amp; </span>
+        <span style="color:var(--tim);">Анастасия</span>
+      </h1>
+
+      <div class="divider reveal" style="margin:1.5rem auto;transition-delay:0.2s;background:linear-gradient(90deg,transparent,var(--gold),transparent);width:5rem;"></div>
+
+      <div class="reveal" style="transition-delay:0.3s;display:flex;justify-content:center;gap:clamp(1.5rem,4vw,3rem);flex-wrap:wrap;margin-bottom:2rem;">
+        <div style="text-align:center;">
+          <div style="font-family:var(--serif);font-size:clamp(1.4rem,3vw,2.2rem);font-weight:300;color:var(--gold);">6 738</div>
+          <div class="label" style="margin-bottom:0;">сообщений</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:var(--serif);font-size:clamp(1.4rem,3vw,2.2rem);font-weight:300;color:var(--gold);">70</div>
+          <div class="label" style="margin-bottom:0;">дней</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:var(--serif);font-size:clamp(1.4rem,3vw,2.2rem);font-weight:300;color:var(--gold);">9</div>
+          <div class="label" style="margin-bottom:0;">аспектов анализа</div>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.4s;font-family:var(--sans);font-size:clamp(0.65rem,1vw,0.75rem);letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);">
+        19 января — 29 марта 2026 &nbsp;·&nbsp; Вероника Степанова, психолог
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 2 — ЧТО ЗДЕСЬ ПРОИСХОДИТ                       -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="1">
+    <div class="glow" style="width:600px;height:600px;background:radial-gradient(circle,rgba(212,162,87,0.08),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;text-align:center;max-width:800px;">
+      <div class="label reveal">Диагноз отношений</div>
+
+      <div class="reveal" style="transition-delay:0.1s;font-family:var(--serif);font-size:clamp(0.9rem,1.6vw,1.2rem);font-weight:300;font-style:italic;color:var(--gold);margin-bottom:1.2rem;letter-spacing:0.05em;">
+        Что здесь происходит на самом деле
+      </div>
+
+      <div class="big-quote reveal" style="transition-delay:0.2s;">
+        Классический<br>
+        <em>«тревожно-избегающий тандем»</em>
+      </div>
+
+      <div class="divider reveal" style="margin:1.5rem auto;background:linear-gradient(90deg,transparent,var(--gold),transparent);width:4rem;transition-delay:0.3s;"></div>
+
+      <p class="lead reveal" style="transition-delay:0.4s;text-align:center;font-size:clamp(0.9rem,1.7vw,1.15rem);">
+        Вы притягиваетесь друг к другу не случайно: каждый в другом закрывает ровно ту потребность, которую не может закрыть самостоятельно. Именно поэтому вас так сложно оторвать друг от друга, <em style="font-style:italic;color:rgba(232,228,240,0.6);">даже когда больно.</em>
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 3 — АНАСТАСИЯ: ТИП ПРИВЯЗАННОСТИ               -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="2">
+    <div class="glow" style="width:700px;height:700px;background:radial-gradient(circle,rgba(196,127,160,0.1),transparent 65%);top:50%;left:30%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;">
+      <div class="label reveal" style="color:var(--ana);">Анастасия</div>
+      <div class="type-badge anxious reveal" style="transition-delay:0.05s;">● Тревожный тип привязанности</div>
+      <h2 class="section-title reveal" style="transition-delay:0.1s;">Ей нужно быть <em style="color:var(--ana);font-style:italic;">выбранной</em></h2>
+
+      <ul class="bullets">
+        <li class="reveal" style="transition-delay:0.15s;">
+          <span class="bullet-dot ana"></span>
+          <span>Острая потребность быть <strong>«выбранной»</strong>, а не просто быть рядом — разница принципиальная</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.2s;">
+          <span class="bullet-dot ana"></span>
+          <span><em style="font-style:italic;color:rgba(232,228,240,0.6);">«Со мной не видят совместного будущего»</em> — это не манипуляция, это сигнал боли</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.25s;">
+          <span class="bullet-dot ana"></span>
+          <span>Ей проще выражать себя на английском — <em style="font-style:italic;color:rgba(232,228,240,0.6);">«так чувствует себя менее униженной своими чувствами»</em></span>
+        </li>
+        <li class="reveal" style="transition-delay:0.3s;">
+          <span class="bullet-dot ana"></span>
+          <span><strong style="color:var(--ana);">Психосоматика</strong> — аллергия на стрессе. Тело кричит то, что слова не могут донести</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.35s;">
+          <span class="bullet-dot ana"></span>
+          <span>Стыдится собственной любви — уязвимость в её опыте связана с риском отвержения</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 4 — ТИМУР: ТИП ПРИВЯЗАННОСТИ                   -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="3">
+    <div class="glow" style="width:700px;height:700px;background:radial-gradient(circle,rgba(122,168,212,0.09),transparent 65%);top:50%;right:20%;transform:translate(40%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;">
+      <div class="label reveal" style="color:var(--tim);">Тимур</div>
+      <div class="type-badge avoidant reveal" style="transition-delay:0.05s;">● Избегающий тип привязанности</div>
+      <h2 class="section-title reveal" style="transition-delay:0.1s;">Любит <em style="color:var(--tim);font-style:italic;">делом</em>, а не словом</h2>
+
+      <ul class="bullets">
+        <li class="reveal" style="transition-delay:0.15s;">
+          <span class="bullet-dot tim"></span>
+          <span><strong>Эффективен в действиях</strong>: больница, такси, покупки — всегда там физически, когда нужна помощь</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.2s;">
+          <span class="bullet-dot tim"></span>
+          <span>На длинное письмо о боли отвечает <em style="font-style:italic;color:rgba(232,228,240,0.6);">«Тёмные аллеи»</em> — литературная отсылка как защитный механизм</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.25s;">
+          <span class="bullet-dot tim"></span>
+          <span>Некомфортно делиться глубокими переживаниями — <strong style="color:var(--tim);">признаёт сам</strong></span>
+        </li>
+        <li class="reveal" style="transition-delay:0.3s;">
+          <span class="bullet-dot tim"></span>
+          <span>Молчание ≠ «не люблю» — это <strong>защита, выработанная годами</strong>. Но Анастасия не знает этого кода</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.35s;">
+          <span class="bullet-dot tim"></span>
+          <span>Анастасия читает его молчание как <em style="font-style:italic;color:rgba(232,228,240,0.6);">«ты не любишь»</em> — и здесь начинается цикл боли</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 5 — СКРЫТЫЕ ПОТРЕБНОСТИ И СТРАХИ               -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="4">
+    <div class="glow" style="width:800px;height:400px;background:radial-gradient(ellipse,rgba(212,162,87,0.07),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;width:100%;max-width:900px;">
+      <div style="text-align:center;margin-bottom:clamp(1rem,2.5vw,2rem);">
+        <div class="label reveal">Психологический слой</div>
+        <h2 class="section-title reveal" style="transition-delay:0.1s;margin-bottom:0;">Скрытые потребности и страхи</h2>
+      </div>
+
+      <div class="two-col">
+        <div class="person-col ana-col reveal" style="transition-delay:0.2s;">
+          <div class="person-name">Анастасия</div>
+          <div class="need-fear-item">
+            <div class="need-fear-label" style="color:var(--good);">Потребность</div>
+            <div class="need-fear-text">Быть единственной, выбранной, не <em style="color:rgba(232,228,240,0.5);font-style:italic;">«удобным никем»</em></div>
+          </div>
+          <div class="need-fear-item">
+            <div class="need-fear-label" style="color:var(--danger);">Страх</div>
+            <div class="need-fear-text">Потратить время впустую и оказаться брошенной ни с чем — без статуса, без будущего</div>
+          </div>
+        </div>
+
+        <div class="person-col tim-col reveal" style="transition-delay:0.3s;">
+          <div class="person-name">Тимур</div>
+          <div class="need-fear-item">
+            <div class="need-fear-label" style="color:var(--good);">Потребность</div>
+            <div class="need-fear-text">Признание успеха, финансовая свобода, контроль над своей жизнью и будущим</div>
+          </div>
+          <div class="need-fear-item">
+            <div class="need-fear-label" style="color:var(--danger);">Страх</div>
+            <div class="need-fear-text">Стагнация, бедность <em style="color:rgba(232,228,240,0.5);font-style:italic;">«чувствую себя нищим»</em>, потеря автономии через обязательства</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.4s;margin-top:clamp(0.8rem,2vw,1.5rem);text-align:center;">
+        <div class="body-text" style="color:var(--gold);font-style:italic;font-family:var(--serif);font-size:clamp(0.85rem,1.5vw,1.05rem);">
+          Два человека с разными страхами — и каждый невольно нажимает на больное место другого.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 6 — ПАТТЕРНЫ ПОВЕДЕНИЯ                          -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="5">
+    <div style="position:relative;z-index:1;width:100%;max-width:960px;">
+      <div style="text-align:center;margin-bottom:clamp(1rem,2.5vw,2rem);">
+        <div class="label reveal">Повторяющиеся сценарии</div>
+        <h2 class="section-title reveal" style="transition-delay:0.1s;margin-bottom:0;">Паттерны поведения</h2>
+      </div>
+
+      <div class="three-col">
+        <div class="card reveal" style="transition-delay:0.2s;">
+          <div class="card-title" style="color:var(--gold);">01 — Защитный юмор</div>
+          <div class="card-body">Грубые шутки и взаимные оскорбления как <strong style="color:var(--text);">форма близости</strong> и снижения пафоса. Когда всё слишком серьёзно — смеёмся. Помогает справляться с уязвимостью, но блокирует реальный разговор.</div>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.3s;">
+          <div class="card-title" style="color:var(--ana);">02 — Тестирование границ</div>
+          <div class="card-body">Анастасия блокирует или грозится удалить переписку — это <strong style="color:var(--text);">проверка привязанности</strong>: «ты остановишь меня?» Тимур в ответ выставляет ультиматумы. Оба говорят через действие, а не слова.</div>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.4s;">
+          <div class="card-title" style="color:var(--tim);">03 — Интеллектуализация</div>
+          <div class="card-body">Обсуждение бизнеса, психологии, маркетинга, нейросетей — <strong style="color:var(--text);">безопасное поле контакта</strong>, когда эмоциональная сфера слишком напряжена. Интеллект как укрытие от чувств.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 7 — СТИЛЬ ОБЩЕНИЯ                               -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="6">
+    <div class="glow" style="width:500px;height:500px;background:radial-gradient(circle,rgba(122,168,212,0.07),transparent 70%);bottom:-50px;right:-50px;"></div>
+
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;">
+      <div class="label reveal">Коммуникация</div>
+      <h2 class="section-title reveal" style="transition-delay:0.1s;">Стиль общения</h2>
+
+      <div style="display:flex;flex-direction:column;gap:clamp(0.6rem,1.5vw,1rem);max-width:680px;">
+        <div class="card reveal" style="transition-delay:0.15s;border-left:2px solid var(--gold);border-radius:0 12px 12px 0;border-top:none;border-right:none;border-bottom:none;background:rgba(212,162,87,0.04);">
+          <div class="card-title" style="color:var(--gold);">Высококонтекстная коммуникация</div>
+          <div class="card-body">Внутренние шутки, мемы, переходы на английский для личных тем. Язык, который понимают только они двое.</div>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.22s;border-left:2px solid var(--tim);border-radius:0 12px 12px 0;border-top:none;border-right:none;border-bottom:none;background:rgba(122,168,212,0.04);">
+          <div class="card-title" style="color:var(--tim);">Английский как фильтр</div>
+          <div class="card-body">Анастасия признаётся: на чужом языке меньше уязвимости, меньше <em style="font-style:italic;">«унижения своими чувствами»</em>. Дистанция через язык.</div>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.29s;border-left:2px solid var(--ana);border-radius:0 12px 12px 0;border-top:none;border-right:none;border-bottom:none;background:rgba(196,127,160,0.04);">
+          <div class="card-title" style="color:var(--ana);">Бытовая забота как суррогат близости</div>
+          <div class="card-body">Общие заказы, её готовка у него, ночёвки, встречи у подъезда. Создаёт <strong style="color:var(--text);">иллюзию семьи.</strong> Для Анастасии это де-факто отношения. Для Тимура — удобная «база».</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 8 — КОНФЛИКТЫ                                   -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="7">
+    <div class="glow" style="width:600px;height:300px;background:radial-gradient(ellipse,rgba(224,112,112,0.07),transparent 70%);top:30%;left:50%;transform:translateX(-50%);"></div>
+
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;">
+      <div class="label reveal">Напряжение</div>
+      <h2 class="section-title reveal" style="transition-delay:0.1s;">Конфликты</h2>
+
+      <div class="card reveal" style="transition-delay:0.15s;border-top:2px solid var(--danger);max-width:640px;margin-bottom:clamp(0.8rem,2vw,1.5rem);">
+        <div class="card-title" style="color:var(--danger);">Основной конфликт — несовпадение целей</div>
+        <div class="card-body" style="font-size:clamp(0.82rem,1.4vw,0.97rem);">Анастасия хочет <strong style="color:var(--ana);">отношений</strong>. Тимур хочет <strong style="color:var(--tim);">свободы и фокуса на заработке</strong>. Это не плохие люди — это разные запросы к жизни прямо сейчас.</div>
+      </div>
+
+      <div class="label reveal" style="transition-delay:0.2s;margin-bottom:0.5rem;">Способ разрешения</div>
+      <ul class="bullets" style="max-width:640px;">
+        <li class="reveal" style="transition-delay:0.25s;">
+          <span class="bullet-dot" style="background:var(--danger);"></span>
+          <span>Тимур <strong>игнорирует серьёзные претензии</strong>, переводит тему на работу или переходит к шуткам</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.3s;">
+          <span class="bullet-dot" style="background:var(--danger);"></span>
+          <span>Анастасия, несмотря на заявления об уходе, <strong>возвращается</strong> в привычный цикл заботы о нём</span>
+        </li>
+        <li class="reveal" style="transition-delay:0.35s;">
+          <span class="bullet-dot gold"></span>
+          <span style="color:var(--gold);font-family:var(--serif);font-style:italic;font-size:clamp(0.85rem,1.4vw,1rem);">Два человека говорят на разных языках о разном будущем</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 9 — ЭМОЦИОНАЛЬНАЯ БЛИЗОСТЬ                      -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="8">
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;">
+      <div class="label reveal">Глубина контакта</div>
+      <h2 class="section-title reveal" style="transition-delay:0.1s;">Эмоциональная близость</h2>
+
+      <div class="reveal" style="transition-delay:0.12s;font-family:var(--serif);font-style:italic;color:var(--gold);font-size:clamp(0.88rem,1.5vw,1.05rem);margin-bottom:1rem;">Парадоксальная близость</div>
+
+      <div style="display:flex;flex-direction:column;gap:0.55rem;max-width:660px;">
+        <div class="check-row yes reveal" style="transition-delay:0.17s;">
+          <span class="icon">✓</span>
+          <span>Делятся интимными подробностями быта и физиологии — уровень доверия очень высок</span>
+        </div>
+        <div class="check-row yes reveal" style="transition-delay:0.22s;">
+          <span class="icon">✓</span>
+          <span><strong>Максимальная уязвимость</strong> — смерть бабушки Анастасии: она прямо ищет его поддержки, и он там</span>
+        </div>
+        <div class="check-row yes reveal" style="transition-delay:0.27s;">
+          <span class="icon">✓</span>
+          <span>Совместная работа, игры, планы — <em style="font-style:italic;color:rgba(232,228,240,0.6);">«думаем похоже»</em></span>
+        </div>
+        <div style="height:0.5rem;"></div>
+        <div class="check-row no reveal" style="transition-delay:0.32s;">
+          <span class="icon">✗</span>
+          <span>Тимур выстраивает стену при <strong>«реальных глубоких переживаниях»</strong> — Анастасия замечает это и называет вслух</span>
+        </div>
+        <div class="check-row no reveal" style="transition-delay:0.37s;">
+          <span class="icon">✗</span>
+          <span>Интеллектуализация как способ <strong>избежать эмоционального контакта</strong> — уйти в тему, не оставаться в чувстве</span>
+        </div>
+        <div class="check-row no reveal" style="transition-delay:0.42s;">
+          <span class="icon">✗</span>
+          <span>Глубокий разговор об отношениях систематически откладывается — юмором, бытом, работой</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 10 — РОЛЕВЫЕ ПОЗИЦИИ                            -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="9">
+    <div class="glow" style="width:700px;height:400px;background:radial-gradient(ellipse,rgba(196,127,160,0.06) 0%,rgba(122,168,212,0.06) 100%);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;width:100%;max-width:900px;">
+      <div style="text-align:center;margin-bottom:clamp(1rem,2.5vw,2rem);">
+        <div class="label reveal">Динамика власти</div>
+        <h2 class="section-title reveal" style="transition-delay:0.1s;margin-bottom:0;">Ролевые позиции</h2>
+      </div>
+
+      <div class="two-col">
+        <div class="person-col ana-col reveal" style="transition-delay:0.2s;">
+          <div class="person-name">Анастасия</div>
+          <div class="type-badge anxious" style="font-size:0.62rem;margin-bottom:0.8rem;">Опекун / Инициатор</div>
+          <ul class="bullets" style="gap:0.45rem;">
+            <li><span class="bullet-dot ana"></span><span>Инициирует активности: театры, игры, книги, фильмы</span></li>
+            <li><span class="bullet-dot ana"></span><span>Готовит, создаёт уют, организует быт</span></li>
+            <li><span class="bullet-dot ana"></span><span>Пытается «лечить» его психологически</span></li>
+            <li><span class="bullet-dot ana"></span><span>Первой открывается эмоционально</span></li>
+            <li><span class="bullet-dot ana"></span><span>Помогает с бизнесом, пишет отзывы, даёт советы</span></li>
+          </ul>
+        </div>
+
+        <div class="person-col tim-col reveal" style="transition-delay:0.3s;">
+          <div class="person-name">Тимур</div>
+          <div class="type-badge avoidant" style="font-size:0.62rem;margin-bottom:0.8rem;">Организатор / Дистанцирующийся</div>
+          <ul class="bullets" style="gap:0.45rem;">
+            <li><span class="bullet-dot tim"></span><span>Берёт финансово-логистическую часть: такси, покупки</span></li>
+            <li><span class="bullet-dot tim"></span><span>Выступает «учителем» в маркетинге и бизнесе</span></li>
+            <li><span class="bullet-dot tim"></span><span>Эффективен в кризисах: больница, срочная помощь</span></li>
+            <li><span class="bullet-dot tim"></span><span>Дистанцируется в эмоциональном плане</span></li>
+            <li><span class="bullet-dot tim"></span><span>«Убегающее звено» при глубоких разговорах</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 11 — ПОЧЕМУ ВЫ ВМЕСТЕ                           -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="10">
+    <div class="glow" style="width:600px;height:600px;background:radial-gradient(circle,rgba(212,162,87,0.08),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;">
+      <div class="label reveal">Магнетизм</div>
+      <h2 class="section-title reveal" style="transition-delay:0.1s;">Почему вы вместе</h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(0.6rem,1.5vw,1rem);max-width:780px;">
+        <div class="card reveal" style="transition-delay:0.15s;">
+          <div class="card-title" style="color:var(--gold);">Схожесть мышления</div>
+          <div class="card-body">Юмор как общий язык близости — оба мгновенно понимают отсылки, иронию, контекст</div>
+        </div>
+        <div class="card reveal" style="transition-delay:0.2s;">
+          <div class="card-title" style="color:var(--gold);">Командная работа</div>
+          <div class="card-body">Она помогает с бизнесом — он вывозит из больницы. Умеют работать на одного</div>
+        </div>
+        <div class="card reveal" style="transition-delay:0.25s;">
+          <div class="card-title" style="color:var(--gold);">Химия</div>
+          <div class="card-body">Интеллектуальное + физическое притяжение. Редкое сочетание, которое оба чувствуют</div>
+        </div>
+        <div class="card reveal" style="transition-delay:0.3s;">
+          <div class="card-title" style="color:var(--gold);">Ощущение «мы»</div>
+          <div class="card-body">Общий быт создаёт особое пространство. <em style="font-style:italic;color:rgba(232,228,240,0.6);">«Тёмные аллеи»</em> — оба знают, что это что-то настоящее</div>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.4s;margin-top:clamp(0.8rem,1.5vw,1.2rem);">
+        <div class="card" style="border-left:2px solid var(--gold);border-radius:0 12px 12px 0;border-top:none;border-right:none;border-bottom:none;background:var(--gold-dim);">
+          <div class="card-body" style="color:var(--gold);font-family:var(--serif);font-style:italic;font-size:clamp(0.85rem,1.5vw,1rem);">Взаимное дополнение: Анастасия даёт тепло и уют — Тимур структурирует её хаотичный эмоциональный мир</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 12 — ГЛАВНЫЙ РИСК                               -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="11">
+    <div class="glow" style="width:700px;height:700px;background:radial-gradient(circle,rgba(224,112,112,0.1),transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;text-align:center;">
+      <div class="label reveal" style="color:var(--danger);">Предупреждение</div>
+
+      <div class="reveal" style="transition-delay:0.1s;font-family:var(--serif);font-size:clamp(1.8rem,4vw,3.2rem);font-weight:300;color:var(--danger);margin-bottom:0.5rem;line-height:1.2;">
+        «Затянувшаяся<br>неопределённость»
+      </div>
+
+      <div class="divider reveal" style="transition-delay:0.15s;margin:1rem auto;background:linear-gradient(90deg,transparent,var(--danger),transparent);width:4rem;"></div>
+
+      <p class="lead reveal" style="transition-delay:0.2s;text-align:center;font-size:clamp(0.88rem,1.6vw,1.05rem);margin-bottom:clamp(1rem,2vw,1.5rem);">
+        Отношения могут оставаться в серой зоне <strong>годами.</strong>
+      </p>
+
+      <div class="two-col reveal" style="transition-delay:0.25s;max-width:700px;margin:0 auto;">
+        <div class="risk-box" style="border-color:rgba(196,127,160,0.35);background:rgba(196,127,160,0.06);">
+          <div class="card-title" style="color:var(--ana);margin-bottom:0.5rem;">Для Анастасии</div>
+          <div class="card-body">Постепенное истощение ресурса — давать и ждать, давать и ждать. Пока не останется ничего.</div>
+        </div>
+        <div class="risk-box" style="border-color:rgba(122,168,212,0.35);background:rgba(122,168,212,0.06);">
+          <div class="card-title" style="color:var(--tim);margin-bottom:0.5rem;">Для Тимура</div>
+          <div class="card-body">Искреннее непонимание «чего ей не хватает» — ведь он же <em style="font-style:italic;">рядом.</em> Слепое пятно.</div>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.35s;margin-top:clamp(0.8rem,1.5vw,1.2rem);font-family:var(--serif);font-style:italic;color:var(--muted);font-size:clamp(0.85rem,1.4vw,1rem);">
+        Два правды. Оба настоящие. Оба не слышат друг друга.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 13 — КЛЮЧЕВОЙ ВОПРОС                            -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="12">
+    <div class="glow" style="width:800px;height:800px;background:radial-gradient(circle,rgba(212,162,87,0.09),transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;text-align:center;max-width:820px;">
+      <div class="label reveal" style="color:var(--gold);">Точка истины</div>
+
+      <div class="reveal" style="transition-delay:0.15s;font-family:var(--sans);font-size:clamp(0.75rem,1.2vw,0.88rem);font-weight:300;color:var(--muted);margin-bottom:1.5rem;">
+        Тимур, тебе нужно ответить честно на один вопрос:
+      </div>
+
+      <div class="reveal" style="transition-delay:0.25s;">
+        <div style="font-family:var(--serif);font-size:clamp(1.4rem,3.2vw,2.6rem);font-weight:300;font-style:italic;line-height:1.4;color:var(--text);">
+          «Ты хочешь Анастасию<br>в своей жизни как
+          <span style="color:var(--gold);font-style:normal;">партнёра</span>
+          —<br>или как
+          <span style="color:var(--muted);font-style:normal;font-size:0.85em;">тёплый фон<br>для карьерного рывка?</span>»
+        </div>
+      </div>
+
+      <div class="divider reveal" style="transition-delay:0.4s;margin:2rem auto;background:linear-gradient(90deg,transparent,var(--gold),transparent);width:5rem;"></div>
+
+      <div class="reveal" style="transition-delay:0.5s;font-family:var(--sans);font-size:clamp(0.72rem,1.1vw,0.82rem);font-weight:300;color:var(--muted);max-width:50ch;margin:0 auto;">
+        Ответ на этот вопрос определяет всё остальное. Не для неё — для тебя.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 14 — ЧТО ДЕЛАТЬ                                 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="13">
+    <div style="position:relative;z-index:1;max-width:820px;width:100%;">
+      <div class="label reveal">Психологические рекомендации</div>
+      <h2 class="section-title reveal" style="transition-delay:0.1s;">Что делать</h2>
+
+      <div class="two-col" style="margin-bottom:clamp(0.8rem,2vw,1.5rem);">
+        <div class="card reveal" style="transition-delay:0.2s;border-top:2px solid var(--good);">
+          <div class="card-title" style="color:var(--good);margin-bottom:0.8rem;">Если хочешь Анастасию как партнёра</div>
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            <div class="verdict-row">
+              <div class="verdict-icon">→</div>
+              <div class="verdict-text">Научиться присутствовать <strong>эмоционально</strong>, а не только физически</div>
+            </div>
+            <div class="verdict-row">
+              <div class="verdict-icon">→</div>
+              <div class="verdict-text">Называть чувства вслух — не только помогать делом</div>
+            </div>
+            <div class="verdict-row">
+              <div class="verdict-icon">→</div>
+              <div class="verdict-text" style="color:var(--good);"><strong>Это работа. Этому учатся. Это возможно.</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal" style="transition-delay:0.3s;border-top:2px solid var(--danger);">
+          <div class="card-title" style="color:var(--danger);margin-bottom:0.8rem;">Если нет</div>
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            <div class="verdict-row">
+              <div class="verdict-icon" style="color:var(--danger);">→</div>
+              <div class="verdict-text">Честнее отпустить её — пока она ещё не истратила все ресурсы на ожидание</div>
+            </div>
+            <div class="verdict-row">
+              <div class="verdict-icon" style="color:var(--danger);">→</div>
+              <div class="verdict-text">Молчаливое «всё хорошо» — это не доброта, это выбор за неё</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card reveal" style="transition-delay:0.4s;border-left:2px solid var(--gold);border-radius:0 12px 12px 0;border-top:none;border-right:none;border-bottom:none;background:var(--gold-dim);max-width:680px;">
+        <div class="card-body" style="color:var(--gold);font-family:var(--serif);font-style:italic;font-size:clamp(0.85rem,1.5vw,1rem);">Потенциал для надёжной привязанности есть — переписка это подтверждает. Но только если оба выбирают это осознанно, а не по инерции.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SLIDE 15 — ВЫВОД                                      -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="slide" data-slide="14">
+    <div class="glow" style="width:600px;height:600px;background:radial-gradient(circle,rgba(196,127,160,0.08) 0%,rgba(122,168,212,0.08) 100%);top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+
+    <div style="position:relative;z-index:1;text-align:center;max-width:760px;">
+      <div class="label reveal" style="color:var(--gold);">Финальный вывод</div>
+
+      <div class="reveal" style="transition-delay:0.1s;font-family:var(--serif);font-size:clamp(1rem,2vw,1.5rem);font-weight:300;font-style:italic;color:var(--muted);margin-bottom:0.8rem;">
+        «Тревожно-избегающий тандем»
+      </div>
+      <div class="reveal" style="transition-delay:0.15s;font-family:var(--serif);font-size:clamp(1.2rem,2.5vw,1.9rem);font-weight:300;color:var(--gold);margin-bottom:1.2rem;">с потенциалом</div>
+
+      <div class="divider reveal" style="transition-delay:0.2s;margin:0 auto 1.2rem;background:linear-gradient(90deg,transparent,var(--gold),transparent);width:4rem;"></div>
+
+      <p class="lead reveal" style="transition-delay:0.25s;text-align:center;font-size:clamp(0.9rem,1.6vw,1.1rem);margin-bottom:1.5rem;">
+        У вас есть всё для настоящих отношений:<br>
+        <span style="color:var(--ana);">химия</span>, <span style="color:var(--tim);">интеллект</span>, <span style="color:var(--good);">умение заботиться</span>, <span style="color:var(--gold);">команда.</span><br><br>
+        Не хватает одного —<br>
+        <strong>готовности Тимура быть уязвимым</strong><br>
+        так же, как он эффективен в действиях.
+      </p>
+
+      <div class="divider reveal" style="transition-delay:0.35s;margin:0 auto 1.2rem;background:linear-gradient(90deg,transparent,var(--muted),transparent);width:3rem;"></div>
+
+      <div class="reveal" style="transition-delay:0.4s;display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;">
+        <div style="font-family:var(--serif);font-size:clamp(1rem,1.8vw,1.3rem);font-weight:300;font-style:italic;color:var(--danger);">Это не приговор.</div>
+        <div style="font-family:var(--serif);font-size:clamp(1rem,1.8vw,1.3rem);font-weight:300;font-style:italic;color:var(--good);">Это точка выбора.</div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.5s;font-family:var(--sans);font-size:clamp(0.65rem,1vw,0.75rem);letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);">
+        — Вероника Степанова, психолог
+      </div>
+    </div>
+  </section>
+
+</div><!-- /deck -->
+
+<!-- ─── PROGRESS & COUNTER ────────────────────────────────── -->
+<div class="progress-bar" id="progress"></div>
+<div class="counter" id="counter">1 / 15</div>
+
+<!-- ─── NAV DOTS ─────────────────────────────────────────── -->
+<nav class="nav-dots" id="navDots" aria-label="Навигация по слайдам"></nav>
+
+<script>
+(function () {
+  'use strict';
+
+  const deck     = document.getElementById('deck');
+  const slides   = Array.from(document.querySelectorAll('.slide'));
+  const progress = document.getElementById('progress');
+  const counter  = document.getElementById('counter');
+  const dotsNav  = document.getElementById('navDots');
+  const TOTAL    = slides.length;
+  let current    = 0;
+  let animating  = false;
+
+  /* ── Size deck to hold all slides in a vertical column ── */
+  deck.style.height = (TOTAL * 100) + 'vh';
+
+  /* ── Build nav dots ── */
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Слайд ' + (i + 1));
+    dot.addEventListener('click', () => goTo(i));
+    dotsNav.appendChild(dot);
+  });
+
+  /* ── Reveal animations inside a slide ── */
+  function triggerReveals(slide) {
+    slide.querySelectorAll('.reveal').forEach((el, i) => {
+      const delay = parseFloat(el.style.transitionDelay) || (i * 0.06);
+      setTimeout(() => el.classList.add('shown'), delay * 1000 + 80);
+    });
+  }
+  function resetReveals(slide) {
+    slide.querySelectorAll('.reveal.shown').forEach(el => el.classList.remove('shown'));
+  }
+
+  /* ── Navigate: shift deck so slide idx is in viewport ── */
+  function goTo(idx) {
+    if (idx === current || animating) return;
+    animating = true;
+    resetReveals(slides[current]);
+    current = idx;
+    deck.style.transform = `translateY(${-idx * 100}vh)`;
+    update();
+    /* trigger reveals after transition (750 ms) */
+    setTimeout(() => {
+      triggerReveals(slides[current]);
+      animating = false;
+    }, 780);
+  }
+
+  function update() {
+    progress.style.width = ((current + 1) / TOTAL * 100) + '%';
+    counter.textContent  = (current + 1) + ' / ' + TOTAL;
+    dotsNav.querySelectorAll('.nav-dot').forEach((d, i) =>
+      d.classList.toggle('active', i === current));
+    document.title = 'Слайд ' + (current + 1) + ' / ' + TOTAL + ' — Психологический анализ';
+  }
+
+  /* ── Keyboard ── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(Math.min(current + 1, TOTAL - 1)); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); goTo(Math.max(current - 1, 0)); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End')  { e.preventDefault(); goTo(TOTAL - 1); }
+  });
+
+  /* ── Mouse wheel ── */
+  let wheelTimer;
+  document.addEventListener('wheel', e => {
+    e.preventDefault();
+    clearTimeout(wheelTimer);
+    wheelTimer = setTimeout(() => {
+      if (e.deltaY > 0) goTo(Math.min(current + 1, TOTAL - 1));
+      else              goTo(Math.max(current - 1, 0));
+    }, 50);
+  }, { passive: false });
+
+  /* ── Touch swipe ── */
+  let touchStartY = 0;
+  document.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dy = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 40) {
+      if (dy > 0) goTo(Math.min(current + 1, TOTAL - 1));
+      else        goTo(Math.max(current - 1, 0));
+    }
+  }, { passive: true });
+
+  /* ── Init ── */
+  deck.style.transform = 'translateY(0)';
+  triggerReveals(slides[0]);
+  update();
+})();
+</script>
+</body>
+</html>
